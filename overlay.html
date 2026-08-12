@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>League of Legends Stream Overlay</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        body {
+            width: 1920px;
+            height: 1080px;
+            background-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- WEEKLY RECORD --- */
+        .weekly-record {
+            position: absolute;
+            top: 230px;
+            left: 40px;
+            background: rgba(20, 20, 25, 0.85);
+            border-left: 5px solid #5b2b6e;
+            padding: 10px 12px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            min-width: 120px;
+            height: 72px;
+            width: 170px;
+        }
+
+        .rank-container {
+            position: absolute;
+            top: 230px; 
+            left: 225px;
+            background: rgba(20, 20, 25, 0.85);
+            border-left: 5px solid #5b2b6e;
+            padding: 10px 12px;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            min-width: 120px;
+            height: 72px;
+            width: 170px;
+        }
+
+        .weekly-record h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #aaaaaa;
+            margin-bottom: 4px;
+        }
+
+        .rank-container h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #aaaaaa;
+            margin-bottom: 4px;
+        }
+
+        .weekly-record .score {
+            font-size: 26px;
+            font-weight: 800;
+            position: relative;
+            top: -2px;
+        }
+
+        .rank-text {
+            font-size: 26px;
+            font-weight: 800;
+            position: relative;
+            top: -2px;
+        }
+
+        /* --- RIGHT SIDEBAR --- */
+        .right-sidebar {
+            position: absolute;
+            top: 15px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        /* --- TOP CHARACTERS --- */
+        .leaderboard {
+            background: rgba(20, 20, 25, 0.85);
+            padding: 15px;
+            border: 1px solid #5b2b6e;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 260px;
+            display: block; 
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+
+        .leaderboard-header h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #aaaaaa;
+        }
+
+        h2.header-winrate {
+            font-size: 10px;
+            color: #5b2b6e;
+            letter-spacing: 1px;
+        }
+
+        .char-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .char-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Avatar Container */
+        .char-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            background: #333;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden; 
+        }
+
+        /* Image specific styling */
+        .char-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            object-position: center top; 
+        }
+
+        .char-info {
+            flex-grow: 1;
+        }
+
+        .char-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .char-stats {
+            font-size: 12px;
+            color: #bbbbbb;
+        }
+
+        .char-winrate {
+            font-size: 16px;
+            font-weight: 700;
+            color: #5b2b6e;
+            text-align: right;
+            min-width: 50px;
+        }
+
+        
+
+        
+
+        .rank-display {
+            display: flex;
+            align-items: center;
+        }
+
+        .rank-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #5b2b6e;
+        }
+
+        .rank-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        
+
+        .streak-container {
+            display: none; 
+            position: absolute; 
+            bottom: 100%; 
+            left: 0; 
+            margin-bottom: 6px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffaa00; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
+            white-space: nowrap; 
+        }
+
+        .last-5-container {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            background: rgba(20, 20, 25, 0.85);
+            padding: 15px;
+            border: 1px solid #5b2b6e;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 260px;
+            display: block; 
+        
+        }
+
+        .last-5-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .last-5-title {
+            font-size: 14px;
+            color: #aaaaaa;
+            margin-bottom: -1px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            
+
+        }
+        .matches-wrapper {
+            display: flex;
+            gap: 5px;
+        }
+        .match-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 5px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+        }
+        .match-box.win {
+            border-color: #4ade80;
+        }
+        .match-box.loss {
+            border-color: #ef4444;
+        }
+        .match-badge {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-top-right-radius: 4px;
+            text-shadow: none;
+        }
+        .match-box.win .match-badge {
+            background-color: #4ade80;
+            color: #052e16;
+        }
+        .match-box.loss .match-badge {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="rank-container" id="rank-container">
+        <h2>Current Rank</h2>
+        <div class="rank-display">
+            <div class="rank-icon" id="rank-icon-wrapper"></div>
+            <div class="rank-text" id="rank-text-display">Unranked</div>
+        </div>
+    </div>
+
+    <div class="weekly-record" id="record-container">
+        <div class="streak-container" id="streak-display">🔥 2 WINS</div>
+        <h2 id="record-title">Weekly Record</h2>
+        <div class="score" id="record-display">0W - 0L</div>
+    </div>
+
+    <div class="right-sidebar">
+
+        <div class="leaderboard" id="leaderboard-container">
+            <div class="leaderboard-header">
+                <h2>Top Characters</h2>
+                <h2 class="header-winrate">WIN %</h2>
+            </div>
+            <div id="characters-list">
+            </div>
+        </div>
+
+        <div class="last-5-container" id="last-5-section">
+            <div class="last-5-header">
+                <div class="last-5-title">Last 5 Games</div>
+            </div>
+            <div class="matches-wrapper" id="matches-wrapper">
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let lastDataString = "";
+
+        async function updateOverlay() {
+            try {
+                const response = await fetch('data.json?cache_bypass=' + Date.now());
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                const currentDataString = JSON.stringify(data);
+                
+                if (currentDataString === lastDataString) return;
+                lastDataString = currentDataString;
+
+                // --- RANK VISIBILITY AND LOGIC ---
+                const rankEl = document.getElementById('rank-container');
+                const showRank = data.settings ? (data.settings.show_rank !== false) : true;
+                
+                if (showRank && data.rank_info) {
+                    rankEl.style.display = "block";
+                    
+                    const rankBase = data.rank_info.rank;
+                    const division = data.rank_info.division;
+                    const cleanRankName = rankBase.toLowerCase();
+
+                    // Hide division number if they are unranked
+                    const fullRankText = rankBase === "Unranked" ? rankBase : `${rankBase} ${division}`;
+                    document.getElementById('rank-text-display').innerText = fullRankText;
+
+                    // Looks for 'images/initiate.png', falls back to a star if missing
+                    //const rankImageTag = `<img src="images/${cleanRankName}.png" onerror="this.onerror=null; this.parentNode.innerHTML='★';">`;
+                    document.getElementById('rank-icon-wrapper').style.display = 'none';                    
+                } else {
+                    rankEl.style.display = "none";
+                }
+
+                // --- LEADERBOARD VISIBILITY LOGIC ---
+                const leaderboardEl = document.getElementById('leaderboard-container');
+                const showLeaderboard = data.settings ? data.settings.show_leaderboard : true;
+                
+                if (showLeaderboard) {
+                    leaderboardEl.style.display = "block";
+                } else {
+                    leaderboardEl.style.display = "none";
+                }
+                
+                // --- WEEKLY RECORD VISIBILITY ---
+                const recordEl = document.getElementById('record-container');
+                const showRecord = data.settings ? (data.settings.show_record !== false) : true;
+                
+                if (showRecord) {
+                    recordEl.style.display = "block";
+                } else {
+                    recordEl.style.display = "none";
+                }
+
+                // --- LAST 5 GAMES VISIBILITY ---
+                const last5El = document.getElementById('last-5-section');
+                const showLast5 = data.settings ? (data.settings.show_last5 !== false) : true;
+                
+                if (showLast5) {
+                    last5El.style.display = "block";
+                } else {
+                    last5El.style.display = "none";
+                }
+
+                const recordType = data.weekly_record.type ? data.weekly_record.type : "Weekly Record";
+                document.getElementById('record-title').innerText = recordType;
+                
+                document.getElementById('record-display').innerText = 
+                    `${data.weekly_record.wins}W - ${data.weekly_record.losses}L`;
+
+                // --- STREAK LOGIC ---
+                const streakEl = document.getElementById('streak-display');
+                const currentStreak = data.weekly_record.streak || 0;
+
+                if (currentStreak >= 2) {
+                    streakEl.innerText = `🔥 ${currentStreak} WINS`;
+                    streakEl.style.display = "block";
+                } else {
+                    streakEl.style.display = "none";
+                }
+
+                const listContainer = document.getElementById('characters-list');
+                listContainer.innerHTML = "";
+
+                data.characters.forEach(char => {
+                    const shortName = char.name.substring(0,2).toUpperCase();
+                    
+                    // Deletes apostrophes, turns spaces to underscores, removes special characters
+                    const cleanFileName = char.name.toLowerCase().replace(/'/g, '').replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+                    
+                    let wr = char.winrate;
+                    if (!wr.includes('%')) wr += '%';
+
+                    const imageTag = `<img src="images/${cleanFileName}.png" onerror="this.onerror=null; this.parentNode.innerHTML='${shortName}';">`;
+
+                    const rowHTML = `
+                        <div class="char-row">
+                            <div class="char-avatar">${imageTag}</div>
+                            <div class="char-info">
+                                <div class="char-name">${char.name}</div>
+                                <div class="char-stats">${char.games} Games Played</div>
+                            </div>
+                            <div class="char-winrate">${wr}</div>
+                        </div>
+                    `;
+                    listContainer.innerHTML += rowHTML;
+                });
+
+                // --- LAST 5 GAMES LOGIC ---
+                const matchesWrapper = document.getElementById('matches-wrapper');
+                matchesWrapper.innerHTML = ''; 
+
+                if (data.last_5_games) {
+                    data.last_5_games.forEach(match => {
+                        if (match.char !== "None") {
+
+                            const box = document.createElement('div');
+                            box.className = `match-box ${match.result === 'Win' ? 'win' : 'loss'}`;
+                            
+                            let safeCharName = match.char.toLowerCase().replace(/'/g, '').replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+                            box.style.backgroundImage = `url('images/${safeCharName}.png')`;
+
+                            const badge = document.createElement('div');
+                            badge.className = 'match-badge';
+                            badge.innerText = match.result === 'Win' ? 'W' : 'L';
+
+                            box.appendChild(badge);
+                            matchesWrapper.appendChild(box);
+                        }
+                    });
+                }
+
+            } catch (error) {
+                console.log("Waiting for data...");
+            }
+        }
+
+        setInterval(updateOverlay, 1500);
+        updateOverlay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+    "settings": {
+        "show_leaderboard": true,
+        "show_record": true,
+        "show_rank": true,
+        "show_last5": false
+    },
+    "rank_info": {
+        "rank": "Unranked",
+        "division": "II"
+    },
+    "weekly_record": {
+        "type": "Weekly Record",
+        "wins": "0",
+        "losses": "0",
+        "streak": 0
+    },
+    "characters": [
+        {
+            "name": "Aatrox",
+            "games": "0",
+            "wins": "0",
+            "winrate": "0%"
+        },
+        {
+            "name": "Ahri",
+            "games": "0",
+            "wins": "0",
+            "winrate": "0%"
+        },
+        {
+            "name": "Akali",
+            "games": "0",
+            "wins": "0",
+            "winrate": "0%"
+        }
+    ],
+    "last_5_games": [
+        {
+            "char": "Caitlyn",
+            "result": "Win"
+        },
+        {
+            "char": "Camille",
+            "result": "Win"
+        },
+        {
+            "char": "ChoGath",
+            "result": "Loss"
+        },
+        {
+            "char": "Galio",
+            "result": "Win"
+        },
+        {
+            "char": "Diana",
+            "result": "Win"
+        }
+    ]
+}
