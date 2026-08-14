@@ -1,11 +1,87 @@
 import customtkinter as ctk
 import json
 import os
+import tkinter as tk
 
 # Set UI Theme
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
+# ------- Character Picker Modal -------
+class CharacterPickerModal(ctk.CTkToplevel):
+    def __init__(self, parent, character_list, target_var, button_widget, save_callback):
+        super().__init__(parent)
+        self.title("Select Champion")
+        self.geometry("300x400")
+        self.attributes("-topmost", True)
+        self.resizable(False, False)
+
+        self.character_list = character_list
+        self.target_var = target_var
+        self.button_widget = button_widget
+        self.save_callback = save_callback
+
+        # Search Bar
+        self.search_var = ctk.StringVar()
+        self.search_entry = ctk.CTkEntry(self, textvariable=self.search_var, placeholder_text="Search champion...", font=("Arial", 14))
+        self.search_entry.pack(fill="x", padx=15, pady=(15, 5))
+        self.search_entry.bind("<KeyRelease>", self.filter_list)
+        
+        # Allows pressing the Down arrow to instantly jump into the list
+        self.search_entry.bind("<Down>", self.focus_listbox)
+
+        # Standard Tkinter Listbox (Extremely lightweight and fast)
+        self.listbox = tk.Listbox(
+            self, 
+            bg="#2b2b2b", 
+            fg="#ffffff", 
+            selectbackground="#1f538d", 
+            font=("Arial", 13),
+            borderwidth=0,
+            highlightthickness=0,
+            activestyle="none"
+        )
+        self.listbox.pack(fill="both", expand=True, padx=15, pady=(0, 15))
+        
+        # Bindings: Double click or press Enter to select
+        self.listbox.bind("<Double-Button-1>", self.select_char)
+        self.listbox.bind("<Return>", self.select_char)
+
+        self.populate_list(self.character_list)
+        
+        # Wait 50 milliseconds for the window to draw, then force the cursor into the text box
+        self.after(50, self.search_entry.focus)
+
+    def populate_list(self, chars_to_show):
+        self.listbox.delete(0, tk.END)
+        for char in chars_to_show:
+            self.listbox.insert(tk.END, char)
+
+    def filter_list(self, event=None):
+        # Ignore arrow keys and Enter so they don't trigger the filter
+        if event and event.keysym in ("Up", "Down", "Return"):
+            return
+        
+        search_term = self.search_var.get().lower()
+        filtered = [c for c in self.character_list if search_term in c.lower()]
+        self.populate_list(filtered)
+
+    def focus_listbox(self, event=None):
+        self.listbox.focus()
+        if self.listbox.size() > 0:
+            self.listbox.selection_set(0)
+
+    def select_char(self, event=None):
+        selection = self.listbox.curselection()
+        if selection:
+            char_name = self.listbox.get(selection[0])
+            self.target_var.set(char_name)
+            self.button_widget.configure(text=char_name)
+            self.save_callback()
+            self.destroy()
+
+
+#------- Main Overlay Controller -------
 class OverlayController(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -154,7 +230,8 @@ class OverlayController(ctk.CTk):
             row_frame.pack(fill="x", padx=10, pady=2)
             
             char_var = ctk.StringVar(value="None")
-            char_menu = ctk.CTkOptionMenu(row_frame, values=["None"] + self.character_list, variable=char_var, width=140, command=lambda _: self.save_data())
+            char_menu = ctk.CTkButton(row_frame, text=char_var.get(), width=140, fg_color="#333333", hover_color="#444444")
+            char_menu.configure(command=lambda v=char_var, b=char_menu: self.open_character_picker(v, b, include_none=True))
             char_menu.pack(side="left", padx=5)
             
             result_var = ctk.StringVar(value="Win")
@@ -222,6 +299,13 @@ class OverlayController(ctk.CTk):
 
         self.is_loaded = True  # Set the flag to True after loading data
 
+    def open_character_picker(self, target_var, button_widget, include_none=False):
+        # Allow "None" as an option for the Last 5 Games section
+        full_list = ["None"] + self.character_list if include_none else self.character_list
+        
+        picker = CharacterPickerModal(self, full_list, target_var, button_widget, self.save_data)
+        picker.focus()
+
     def add_char_row(self, name_val=None, games_val="", wins_val=""):
         # Prevent adding an absurd number of rows that break the window height
         if len(self.char_rows) >= 7:
@@ -230,13 +314,14 @@ class OverlayController(ctk.CTk):
         row_frame = ctk.CTkFrame(self.rows_frame, fg_color="transparent")
         row_frame.pack(fill="x", padx=10, pady=5)
 
-        # Assign a different default character based on row number so they aren't all "Abrams"
+        # Assign a different default character based on row name number so they aren't all "Abrams"
         default_index = len(self.char_rows) % len(self.character_list)
         default_name = self.character_list[default_index]
 
-        name_menu = ctk.CTkOptionMenu(row_frame, values=self.character_list, width=150)
-        name_menu.set(name_val if name_val else default_name)
-        name_menu.grid(row=0, column=0, padx=5)
+        name_var = ctk.StringVar(value=name_val if name_val else default_name)
+        name_btn = ctk.CTkButton(row_frame, text=name_var.get(), width=150, fg_color="#333333", hover_color="#444444")
+        name_btn.configure(command=lambda v=name_var, b=name_btn: self.open_character_picker(v, b))
+        name_btn.grid(row=0, column=0, padx=5)
 
         games_entry = ctk.CTkEntry(row_frame, placeholder_text="Games", width=100)
         if games_val: games_entry.insert(0, games_val)
@@ -250,7 +335,7 @@ class OverlayController(ctk.CTk):
 
         self.char_rows.append({
             "frame": row_frame, # Save the frame so we can destroy it later
-            "name": name_menu,
+            "name": name_var,
             "games": games_entry,
             "wins": char_wins_entry
         })

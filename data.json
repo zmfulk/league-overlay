@@ -3,11 +3,11 @@
         "show_leaderboard": true,
         "show_record": true,
         "show_rank": true,
-        "show_last5": false
+        "show_last5": true
     },
     "rank_info": {
         "rank": "Unranked",
-        "division": "II"
+        "division": "I"
     },
     "weekly_record": {
         "type": "Weekly Record",
@@ -17,19 +17,19 @@
     },
     "characters": [
         {
-            "name": "Aatrox",
+            "name": "Wukong",
             "games": "0",
             "wins": "0",
             "winrate": "0%"
         },
         {
-            "name": "Ahri",
+            "name": "Hecarim",
             "games": "0",
             "wins": "0",
             "winrate": "0%"
         },
         {
-            "name": "Akali",
+            "name": "Diana",
             "games": "0",
             "wins": "0",
             "winrate": "0%"
