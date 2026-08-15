@@ -21,63 +21,73 @@
             overflow: hidden;
         }
 
-        /* --- WEEKLY RECORD --- */
-        .weekly-record {
+
+        /* --- UNIFIED STAT BAR --- */
+        .stat-bar {
             position: absolute;
             top: 230px;
             left: 40px;
-            background: rgba(20, 20, 25, 0.85);
-            border-left: 5px solid #c426a9;
-            padding: 10px 12px;
+            display: flex; /* Aligns items horizontally */
+            align-items: center;
+            background: rgba(9, 20, 35, 0.90); /* Hextech Blue */
+            border-left: 5px solid #c426a9; /* Hextech Gold */
+            padding: 0 16px;
             border-radius: 0 8px 8px 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            min-width: 120px;
-            height: 72px;
-            width: 170px;
+            height: 72px; /* Hard-locked height */
+            gap: 20px; /* Spacing between the sections */
         }
 
-        .rank-container {
-            position: absolute;
-            top: 230px; 
-            left: 225px;
-            background: rgba(20, 20, 25, 0.85);
-            border-left: 5px solid #c426a9;
-            padding: 10px 12px;
-            border-radius: 0 8px 8px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            min-width: 120px;
-            height: 72px;
-            width: 170px;
+        .stat-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .weekly-record h2 {
-            font-size: 14px;
+        .stat-divider {
+            width: 2px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15); /* Subtle transparent line */
+            border-radius: 2px;
+        }
+
+        .stat-section h2 {
+            font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: #aaaaaa;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
         }
 
-        .rank-container h2 {
-            font-size: 14px;
+        .stat-text {
+            font-size: 26px;
+            font-weight: 800;
+            position: relative;
+            top: -2px; /* Perfect vertical alignment */
+            white-space: nowrap;
+        }
+
+        /* Rank specific tweaks for the flex layout */
+        .rank-display {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Streak popup positioning fix for the unified bar */
+        .streak-container {
+            display: none; 
+            position: absolute; 
+            bottom: 100%; 
+            left: 10px; 
+            margin-bottom: 8px;
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffaa00; 
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #aaaaaa;
-            margin-bottom: 4px;
-        }
-
-        .weekly-record .score {
-            font-size: 26px;
-            font-weight: 800;
-            position: relative;
-            top: -2px;
-        }
-
-        .rank-text {
-            font-size: 26px;
-            font-weight: 800;
-            position: relative;
-            top: -2px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
+            white-space: nowrap; 
         }
 
         /* --- RIGHT SIDEBAR --- */
@@ -303,18 +313,23 @@
 </head>
 <body>
 
-    <div class="rank-container" id="rank-container">
-        <h2>Current Rank</h2>
-        <div class="rank-display">
-            <div class="rank-icon" id="rank-icon-wrapper"></div>
-            <div class="rank-text" id="rank-text-display">Unranked</div>
-        </div>
-    </div>
-
-    <div class="weekly-record" id="record-container">
+    <div class="stat-bar" id="stat-bar-container">
         <div class="streak-container" id="streak-display">🔥 2 WINS</div>
-        <h2 id="record-title">Weekly Record</h2>
-        <div class="score" id="record-display">0W - 0L</div>
+        
+        <div class="stat-section" id="record-container">
+            <h2 id="record-title">Weekly Record</h2>
+            <div class="stat-text" id="record-display">0W - 0L</div>
+        </div>
+
+        <div class="stat-divider" id="stat-divider"></div>
+
+        <div class="stat-section" id="rank-container">
+            <h2>Current Rank</h2>
+            <div class="rank-display">
+                <div class="rank-icon" id="rank-icon-wrapper" style="display: none;"></div>
+                <div class="stat-text" id="rank-text-display">Unranked</div>
+            </div>
+        </div>
     </div>
 
     <div class="right-sidebar">
@@ -352,7 +367,6 @@
                 if (currentDataString === lastDataString) return;
                 lastDataString = currentDataString;
 
-                // --- RANK VISIBILITY AND LOGIC ---
                 const rankEl = document.getElementById('rank-container');
                 const showRank = data.settings ? (data.settings.show_rank !== false) : true;
                 
@@ -363,18 +377,15 @@
                     const division = data.rank_info.division;
                     const cleanRankName = rankBase.toLowerCase();
 
-                    // Hide division number if they are unranked
                     const fullRankText = rankBase === "Unranked" ? rankBase : `${rankBase} ${division}`;
                     document.getElementById('rank-text-display').innerText = fullRankText;
 
-                    // Looks for 'images/initiate.png', falls back to a star if missing
                     //const rankImageTag = `<img src="images/${cleanRankName}.png" onerror="this.onerror=null; this.parentNode.innerHTML='★';">`;
                     document.getElementById('rank-icon-wrapper').style.display = 'none';                    
                 } else {
                     rankEl.style.display = "none";
                 }
 
-                // --- LEADERBOARD VISIBILITY LOGIC ---
                 const leaderboardEl = document.getElementById('leaderboard-container');
                 const showLeaderboard = data.settings ? data.settings.show_leaderboard : true;
                 
@@ -384,7 +395,6 @@
                     leaderboardEl.style.display = "none";
                 }
                 
-                // --- WEEKLY RECORD VISIBILITY ---
                 const recordEl = document.getElementById('record-container');
                 const showRecord = data.settings ? (data.settings.show_record !== false) : true;
                 
@@ -394,7 +404,13 @@
                     recordEl.style.display = "none";
                 }
 
-                // --- LAST 5 GAMES VISIBILITY ---
+                const dividerEl = document.getElementById('stat-divider');
+                if (showRank && showRecord) {
+                    dividerEl.style.display = "block";
+                } else {
+                    dividerEl.style.display = "none";
+                }
+
                 const last5El = document.getElementById('last-5-section');
                 const showLast5 = data.settings ? (data.settings.show_last5 !== false) : true;
                 
@@ -410,7 +426,6 @@
                 document.getElementById('record-display').innerText = 
                     `${data.weekly_record.wins}W - ${data.weekly_record.losses}L`;
 
-                // --- STREAK LOGIC ---
                 const streakEl = document.getElementById('streak-display');
                 const currentStreak = data.weekly_record.streak || 0;
 
@@ -427,7 +442,6 @@
                 data.characters.forEach(char => {
                     const shortName = char.name.substring(0,2).toUpperCase();
                     
-                    // Deletes apostrophes, turns spaces to underscores, removes special characters
                     const cleanFileName = char.name.toLowerCase().replace(/'/g, '').replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
                     
                     let wr = char.winrate;
@@ -448,7 +462,6 @@
                     listContainer.innerHTML += rowHTML;
                 });
 
-                // --- LAST 5 GAMES LOGIC ---
                 const matchesWrapper = document.getElementById('matches-wrapper');
                 matchesWrapper.innerHTML = ''; 
 
