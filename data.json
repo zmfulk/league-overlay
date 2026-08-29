@@ -1,9 +1,9 @@
 {
     "settings": {
-        "show_leaderboard": true,
+        "show_leaderboard": false,
         "show_record": true,
         "show_rank": true,
-        "show_last5": true
+        "show_last5": false
     },
     "rank_info": {
         "rank": "Unranked",
@@ -17,7 +17,7 @@
     },
     "characters": [
         {
-            "name": "Wukong",
+            "name": "Aatrox",
             "games": "0",
             "wins": "0",
             "winrate": "0%"

@@ -183,17 +183,26 @@ class OverlayController(ctk.CTk):
         wins_header = ctk.CTkLabel(header_frame, text="Games Won", font=("Arial", 12, "bold"), width=100, anchor="center")
         wins_header.grid(row=0, column=2, padx=5)
 
-        # Load League of Legends champions dynamically from characerlist file
+        # Load League of Legends champions dynamically from characterlist file
         try:
-            with open("characterlist", "r") as f:
+            import os
+            import sys
+            
+            # Find the exact folder where the app or .exe is sitting
+            if getattr(sys, 'frozen', False):
+                base_path = os.path.dirname(sys.executable)
+            else:
+                base_path = os.path.dirname(os.path.abspath(__file__))
+                
+            char_file_path = os.path.join(base_path, "characterlist.txt")
+
+            with open(char_file_path, "r") as f:
                 content = f.read()
-                
-                # Strip out any brackets, quotes, or line breaks
-                clean_content = content.replace("[", "").replace("]", "").replace('"', '').replace("'", "").replace("\n", "")
-                
-                # Split the text at every comma and remove extra spaces
-                self.character_list = [name.strip() for name in clean_content.split(",") if name.strip()]
-                
+
+            # --- THESE ARE THE TWO LINES I ACCIDENTALLY OMITTED ---
+            clean_content = content.replace("[", "").replace("]", "").replace("'", "").replace('"', "").replace("\n", "")
+            self.character_list = [name.strip() for name in clean_content.split(",") if name.strip()]
+
         except FileNotFoundError:
             self.character_list = ["Error: characterlist file missing"]
         
